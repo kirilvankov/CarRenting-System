@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-namespace CarRenting_System.Controllers
+﻿namespace CarRenting_System.Controllers
 {
     using System.Diagnostics;
+    using System.Linq;
 
+    using CarRenting_System.Data;
     using CarRenting_System.Models;
+    using CarRenting_System.Models.Cars;
 
     using Microsoft.AspNetCore.Mvc;
  
@@ -12,7 +13,32 @@ namespace CarRenting_System.Controllers
     public class HomeController : Controller
     {
 
-        public IActionResult Index() => View();
+        private readonly CarRentingDbContext data;
+
+        public HomeController(CarRentingDbContext data)
+        {
+            this.data = data;
+        }
+
+        public IActionResult Index()
+        {
+            var cars = this.data
+                .Cars
+                .OrderByDescending(c => c.Id)
+                .Select(c => new CarListingViewModel
+                {
+                    Make = c.Make,
+                    Model = c.Model,
+                    Year = c.Year,
+                    ImageUrl = c.ImageUrl,
+
+
+                })
+                .Take(3)
+                .ToList();
+
+            return View();
+        }
      
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

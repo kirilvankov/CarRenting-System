@@ -17,6 +17,24 @@
             this.data = data;
         }
 
+        public IActionResult All()
+        {
+            var cars = this.data
+                .Cars
+                .OrderByDescending(c => c.Id)
+                .Select(c=> new CarListingViewModel 
+                {
+                    Make = c.Make,
+                    Model = c.Model,
+                    Year = c.Year,
+                    ImageUrl = c.ImageUrl,
+
+
+                }).ToList();
+
+            return View(cars);
+        }
+
         public IActionResult Add() => View(new AddCarFormModel 
         {
             Categories = this.GetCategories()
@@ -49,11 +67,10 @@
             this.data.Cars.Add(carData);
             this.data.SaveChanges();
 
-            return RedirectToAction(nameof(Success));
+            return RedirectToAction(nameof(All));
         }
 
-        public IActionResult Success() => View();
-
+        
         private IEnumerable<CarCategoryViewModel> GetCategories()
             => this.data
                     .Categories
