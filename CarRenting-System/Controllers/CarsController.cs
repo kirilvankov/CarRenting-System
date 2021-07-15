@@ -17,25 +17,59 @@
             this.data = data;
         }
 
-        public IActionResult All()
+        public IActionResult All([FromQuery] AllCarsQueryModel query)
         {
-            var cars = this.data
-                .Cars
-                .OrderByDescending(c => c.Id)
-                .Select(c=> new CarListingViewModel 
+            var carsQuery = this.data.Cars.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(query.Make))
+            {
+                carsQuery = carsQuery.Where(c => c.Make == query.Make);
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.SearchTerm))
+            {
+                carsQuery = carsQuery.Where(c =>
+                        (c.Make + " " + c.Model).ToLower().Contains(query.SearchTerm.ToLower()) ||
+                         c.Description.ToLower().Contains(query.SearchTerm.ToLower()));
+            }
+
+            var brands = this.data
+                        .Cars
+                        .Select(c => c.Make)
+                        .Distinct()
+                        .OrderBy(br => br)
+                        .ToList();
+
+            carsQuery = query.Sorting switch
+            {
+                CarSorting.Year => carsQuery.OrderByDescending(c => c.Year),
+                CarSorting.MakeAndModel => carsQuery.OrderBy(c => c.Make).ThenBy(c => c.Model),
+                CarSorting.DateCreated or _ => carsQuery.OrderByDescending(c => c.Id)
+            };
+
+            var totalCars = this.data.Cars.Count();
+
+            var cars = carsQuery
+                .Skip((query.CurrentPage - 1) * AllCarsQueryModel.CarsPerPage)
+                .Take(AllCarsQueryModel.CarsPerPage)
+                .Select(c => new CarListingViewModel
                 {
                     Make = c.Make,
                     Model = c.Model,
                     Year = c.Year,
                     ImageUrl = c.ImageUrl,
-
+                    Category = c.Category.ToString()
 
                 }).ToList();
 
-            return View(cars);
+            query.Cars = cars;
+            query.TotalCars = totalCars;
+            query.Makes = brands;
+
+            return View(query);
         }
 
-        public IActionResult Add() => View(new AddCarFormModel 
+        public IActionResult Add() => View(new AddCarFormModel
         {
             Categories = this.GetCategories()
         });
@@ -43,7 +77,7 @@
         [HttpPost]
         public IActionResult Add(AddCarFormModel car)
         {
-            if (!this.data.Categories.Any(c=>c.Id == car.CategoryId))
+            if (!this.data.Categories.Any(c => c.Id == car.CategoryId))
             {
                 ModelState.AddModelError("Category", "Invalid category");
             }
@@ -70,7 +104,7 @@
             return RedirectToAction(nameof(All));
         }
 
-        
+
         private IEnumerable<CarCategoryViewModel> GetCategories()
             => this.data
                     .Categories
