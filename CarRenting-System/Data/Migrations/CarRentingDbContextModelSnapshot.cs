@@ -4,16 +4,14 @@ using CarRenting_System.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace CarRenting_System.Data.Migrations
+namespace CarRenting_System.Migrations
 {
     [DbContext(typeof(CarRentingDbContext))]
-    [Migration("20210709131948_CategoryAndCarTables")]
-    partial class CategoryAndCarTables
+    partial class CarRentingDbContextModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -29,6 +27,9 @@ namespace CarRenting_System.Data.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DealerId")
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
@@ -57,6 +58,8 @@ namespace CarRenting_System.Data.Migrations
 
                     b.HasIndex("CategoryId");
 
+                    b.HasIndex("DealerId");
+
                     b.ToTable("Cars");
                 });
 
@@ -68,11 +71,47 @@ namespace CarRenting_System.Data.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(25)
+                        .HasColumnType("nvarchar(25)");
 
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("CarRenting_System.Data.Models.Dealer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("UserId1")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.HasIndex("UserId1");
+
+                    b.ToTable("Dealers");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -283,7 +322,30 @@ namespace CarRenting_System.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("CarRenting_System.Data.Models.Dealer", "Dealer")
+                        .WithMany("Cars")
+                        .HasForeignKey("DealerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Category");
+
+                    b.Navigation("Dealer");
+                });
+
+            modelBuilder.Entity("CarRenting_System.Data.Models.Dealer", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithOne()
+                        .HasForeignKey("CarRenting_System.Data.Models.Dealer", "UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId1");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -338,6 +400,11 @@ namespace CarRenting_System.Data.Migrations
                 });
 
             modelBuilder.Entity("CarRenting_System.Data.Models.Category", b =>
+                {
+                    b.Navigation("Cars");
+                });
+
+            modelBuilder.Entity("CarRenting_System.Data.Models.Dealer", b =>
                 {
                     b.Navigation("Cars");
                 });

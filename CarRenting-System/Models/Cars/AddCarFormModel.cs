@@ -3,22 +3,22 @@
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
 
-    using static Data.DataConstants;
+    using static Data.DataConstants.Car;
     public class AddCarFormModel
     {
         [Required]
-        [StringLength(CarMakeMaxLength, MinimumLength = CarMakeMinLength)]
+        [StringLength(MakeMaxLength, MinimumLength = MakeMinLength)]
         public string Make { get; set; }
 
         [Required]
-        [StringLength(CarModelMaxLength, MinimumLength = CarModelMinLength)]
+        [StringLength(ModelMaxLength, MinimumLength = ModelMinLength)]
         public string Model { get; set; }
 
         [Required]
-        [StringLength(CarDescriptionMaxLength, MinimumLength = CarDescriptionMinLength, ErrorMessage ="You should enter the description with maximum {1} characters long.")]
+        [StringLength(DescriptionMaxLength, MinimumLength = DescriptionMinLength, ErrorMessage ="You should enter the description with maximum {1} characters long.")]
         public string Description { get; set; }
 
-        [Range(CarYearMinValue, CarYearMaxValue, ErrorMessage ="Car year should be between {1} and {2}.")]
+        [Range(YearMinValue, YearMaxValue, ErrorMessage ="Car year should be between {1} and {2}.")]
         public int Year { get; set; }
 
         [Display(Name ="Image Url")]
