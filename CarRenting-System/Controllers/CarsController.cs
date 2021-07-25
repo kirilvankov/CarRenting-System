@@ -9,6 +9,7 @@
     using CarRenting_System.Models;
     using CarRenting_System.Models.Cars;
     using CarRenting_System.Services;
+    using CarRenting_System.Services.Cars;
 
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
@@ -16,67 +17,31 @@
     {
         private readonly CarRentingDbContext data;
         private readonly IDealerService dealerService;
+        private readonly ICarsService carsService;
 
-        public CarsController(CarRentingDbContext data, IDealerService dealerService)
+        public CarsController(CarRentingDbContext data, IDealerService dealerService, ICarsService carsService)
         {
             this.data = data;
             this.dealerService = dealerService;
+            this.carsService = carsService;
         }
 
         public IActionResult All([FromQuery] AllCarsQueryModel query)
         {
-            var carsQuery = this.data.Cars.AsQueryable();
+            var queryCars = this.carsService.AllCars(
+                        query.Make,
+                        query.SearchTerm,
+                        query.CategoryId,
+                        query.Sorting,
+                        query.CurrentPage,
+                        AllCarsQueryModel.CarsPerPage);
 
-            if (!string.IsNullOrWhiteSpace(query.Make))
-            {
-                carsQuery = carsQuery.Where(c => c.Make == query.Make);
-            }
+            var brands = this.carsService.AllCarsBrands();
 
-            if (!string.IsNullOrWhiteSpace(query.SearchTerm))
-            {
-                carsQuery = carsQuery.Where(c =>
-                        (c.Make + " " + c.Model).ToLower().Contains(query.SearchTerm.ToLower()) ||
-                         c.Description.ToLower().Contains(query.SearchTerm.ToLower()));
-            }
+            var categories = this.carsService.GetCategories();
 
-            if (query.CategoryId != 0)
-            {
-                carsQuery = carsQuery.Where(c => c.CategoryId == query.CategoryId);
-            }
-
-            var brands = this.data
-                        .Cars
-                        .Select(c => c.Make)
-                        .Distinct()
-                        .OrderBy(br => br)
-                        .ToList();
-
-            var categories = this.GetCategories();
-
-            carsQuery = query.Sorting switch
-            {
-                CarSorting.Year => carsQuery.OrderByDescending(c => c.Year),
-                CarSorting.MakeAndModel => carsQuery.OrderBy(c => c.Make).ThenBy(c => c.Model),
-                CarSorting.DateCreated or _ => carsQuery.OrderByDescending(c => c.Id)
-            };
-
-            var totalCars = carsQuery.Count();
-
-            var cars = carsQuery
-                .Skip((query.CurrentPage - 1) * AllCarsQueryModel.CarsPerPage)
-                .Take(AllCarsQueryModel.CarsPerPage)
-                .Select(c => new CarListingViewModel
-                {
-                    Make = c.Make,
-                    Model = c.Model,
-                    Year = c.Year,
-                    ImageUrl = c.ImageUrl,
-                    Category = c.Category.Name
-
-                }).ToList();
-
-            query.Cars = cars;
-            query.TotalCars = totalCars;
+            query.Cars = queryCars.Cars;
+            query.TotalCars = queryCars.TotalCars;
             query.Makes = brands;
             query.Categories = categories;
 
@@ -95,8 +60,8 @@
                 
             return View(new AddCarFormModel
             {
-                Categories = this.GetCategories()
-            });
+                Categories = this.carsService.GetCategories()
+        });
         }
 
         [HttpPost]
@@ -121,7 +86,7 @@
 
             if (!ModelState.IsValid)
             {
-                car.Categories = this.GetCategories();
+                car.Categories = this.carsService.GetCategories(); 
                 return View(car);
             }
 
@@ -144,15 +109,7 @@
 
         
             
-
-        private IEnumerable<CarCategoryViewModel> GetCategories()
-            => this.data
-                    .Categories
-                    .Select(c => new CarCategoryViewModel
-                    {
-                        Id = c.Id,
-                        Name = c.Name
-                    }).ToList();
+            
 
     }
 }

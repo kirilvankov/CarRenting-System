@@ -3,6 +3,8 @@
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
 
+    using CarRenting_System.Services.Cars;
+
     public class AllCarsQueryModel
     {
         public const int CarsPerPage = 2;
@@ -25,7 +27,7 @@
         [Display(Name ="Brands")]
         public IEnumerable<string> Makes { get; set; }
 
-        public IEnumerable<CarListingViewModel> Cars { get; set; }
+        public IEnumerable<CarServiceModel> Cars { get; set; }
 
         public IEnumerable<CarCategoryViewModel> Categories { get; set; }
     }
