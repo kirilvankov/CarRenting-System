@@ -2,19 +2,24 @@
 {
     using System.Collections.Generic;
     using System.Linq;
-
+    
     using CarRenting_System.Data;
+    using CarRenting_System.Data.Infrastucture;
     using CarRenting_System.Data.Models;
     using CarRenting_System.Models.Cars;
+    using CarRenting_System.Services;
 
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     public class CarsController : Controller
     {
         private readonly CarRentingDbContext data;
+        private readonly IDealerService dealerService;
 
-        public CarsController(CarRentingDbContext data)
+        public CarsController(CarRentingDbContext data, IDealerService dealerService)
         {
             this.data = data;
+            this.dealerService = dealerService;
         }
 
         public IActionResult All([FromQuery] AllCarsQueryModel query)
@@ -69,18 +74,42 @@
             return View(query);
         }
 
-        public IActionResult Add() => View(new AddCarFormModel
+        [Authorize]
+        public IActionResult Add()
         {
-            Categories = this.GetCategories()
-        });
+
+            if (!dealerService.UserIsDealer(this.User.GetId()))
+            {
+
+                return RedirectToAction(nameof(DealersController.Become), "Dealers");
+            } 
+                
+            return View(new AddCarFormModel
+            {
+                Categories = this.GetCategories()
+            });
+        }
 
         [HttpPost]
+        [Authorize]
         public IActionResult Add(AddCarFormModel car)
         {
+            var dealerId = this.data
+                            .Dealers
+                            .Where(d => d.UserId == this.User.GetId())
+                            .Select(d => d.Id)
+                            .FirstOrDefault();
+
+            if (dealerId == 0)
+            {
+                return RedirectToAction("Create", "Dealers");
+            }
+
             if (!this.data.Categories.Any(c => c.Id == car.CategoryId))
             {
                 ModelState.AddModelError("Category", "Invalid category");
             }
+
             if (!ModelState.IsValid)
             {
                 car.Categories = this.GetCategories();
@@ -94,8 +123,8 @@
                 Year = car.Year,
                 Description = car.Description,
                 ImageUrl = car.ImageUrl,
-                CategoryId = car.CategoryId
-
+                CategoryId = car.CategoryId,
+                DealerId = dealerId
             };
 
             this.data.Cars.Add(carData);
@@ -104,6 +133,8 @@
             return RedirectToAction(nameof(All));
         }
 
+        
+            
 
         private IEnumerable<CarCategoryViewModel> GetCategories()
             => this.data

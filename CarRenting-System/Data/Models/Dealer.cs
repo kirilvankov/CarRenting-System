@@ -9,7 +9,8 @@
 
     public class Dealer
     {
-        public int Id { get; init; }
+        [Key]
+        public int Id { get; set; }
 
         [Required]
         [MaxLength(FullNameMaxLength)]

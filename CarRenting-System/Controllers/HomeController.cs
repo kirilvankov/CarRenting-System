@@ -23,6 +23,7 @@
         public IActionResult Index()
         {
             var totalCars = this.data.Cars.Count();
+            var totalUsers = this.data.Users.Count();
 
             var cars = this.data
                 .Cars
@@ -41,6 +42,7 @@
             return View(new IndexViewModel 
             {
                 TotalCars = totalCars,
+                TotalUsers = totalUsers,
                 Cars = cars,
 
             });

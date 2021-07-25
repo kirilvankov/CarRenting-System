@@ -65,6 +65,13 @@
            asp-route-sorting="@((int)Model.Sorting)">>></a>
     </div>
 </div>
+
+<div class="text-center mt-5">
+    @if (!Model.Cars.Any())
+    {
+    <h2>No cars found by given criteria!</h2>
+    }
+</div>
 <div class="mb-5"></div>
 <div class="row">
     @foreach (var car in Model.Cars)
