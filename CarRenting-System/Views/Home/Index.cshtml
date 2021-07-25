@@ -63,17 +63,30 @@
     </a>
 </div>
 <div class="mb-5"></div>
-<div class="jumbotron jumbotron-fluid">
+<div class="row">
+    <div class="col-md-12 text-center">
+        <button class="btn btn-primary" id="statistics-button">Show statistics</button>
+    </div>    
+</div>
+<div class="jumbotron jumbotron-fluid d-none" id="statistics">
     <div class="row">
-        <div class="col-md-4 text-center">
-            <h2>@Model.TotalCars Cars</h2>
-        </div>
-        <div class="col-md-4 text-center">
-            <h2>@Model.TotalUsers Users</h2>
-        </div>
-        <div class="col-md-4 text-center">
-            <h2>@Model.TotalRents Rents</h2>
-        </div>
+        <h2 class="col-md-4 text-center" id="total-cars"></h2>
+        <h2 class="col-md-4 text-center" id="total-users"></h2>
+        <h2 class="col-md-4 text-center" id="total-rents"></h2>
     </div>
 </div>
+@section Scripts {
+    <script>
+        $('#statistics-button').on('click', ev => {
+            $.get('/api/statistics', (data) => {
+                $('#total-cars').text(data.totalCars + " Cars");
+                $('#total-users').text(data.totalUsers + " Users");
+                $('#total-rents').text(data.totalRents + " Rents");
+
+                $('#statistics').removeClass('d-none');
+                $('#statistics-button').hide();
+            });
+        });
+    </script>
+}
 
