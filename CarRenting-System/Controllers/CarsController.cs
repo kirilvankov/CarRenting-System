@@ -38,12 +38,19 @@
                          c.Description.ToLower().Contains(query.SearchTerm.ToLower()));
             }
 
+            if (query.CategoryId != 0)
+            {
+                carsQuery = carsQuery.Where(c => c.CategoryId == query.CategoryId);
+            }
+
             var brands = this.data
                         .Cars
                         .Select(c => c.Make)
                         .Distinct()
                         .OrderBy(br => br)
                         .ToList();
+
+            var categories = this.GetCategories();
 
             carsQuery = query.Sorting switch
             {
@@ -63,13 +70,14 @@
                     Model = c.Model,
                     Year = c.Year,
                     ImageUrl = c.ImageUrl,
-                    Category = c.Category.ToString()
+                    Category = c.Category.Name
 
                 }).ToList();
 
             query.Cars = cars;
             query.TotalCars = totalCars;
             query.Makes = brands;
+            query.Categories = categories;
 
             return View(query);
         }
@@ -81,7 +89,7 @@
             if (!dealerService.UserIsDealer(this.User.GetId()))
             {
 
-                return RedirectToAction(nameof(DealersController.Become), "Dealers");
+                return RedirectToAction(nameof(DealersController.Become ), "Dealers");
             } 
                 
             return View(new AddCarFormModel

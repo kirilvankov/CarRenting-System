@@ -10,6 +10,9 @@
         [Display(Name ="Brand")]
         public string Make { get; init; }
 
+        [Display(Name = "Categories")]
+        public int CategoryId { get; set; }
+
         public int CurrentPage { get; init; } = 1;
 
         [Display(Name = "Search")]
@@ -23,5 +26,7 @@
         public IEnumerable<string> Makes { get; set; }
 
         public IEnumerable<CarListingViewModel> Cars { get; set; }
+
+        public IEnumerable<CarCategoryViewModel> Categories { get; set; }
     }
 }
