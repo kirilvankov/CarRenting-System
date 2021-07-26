@@ -16,6 +16,10 @@
 
         IEnumerable<string> AllCarsBrands();
 
-        IEnumerable<CarCategoryViewModel> GetCategories();
+        bool CategoryExists(int categoryId);
+
+        IEnumerable<CarServiceModel> ByUser(string userId);
+
+        IEnumerable<CarCategoryServiceModel> GetCategories();
     }
 }

@@ -6,14 +6,15 @@
 
 
     using CarRenting_System.Data;
+    using CarRenting_System.Data.Models;
     using CarRenting_System.Models;
     using CarRenting_System.Models.Cars;
 
-    public class CarsService : ICarsService
+    public class CarService : ICarsService
     {
         private readonly CarRentingDbContext data;
 
-        public CarsService(CarRentingDbContext data) 
+        public CarService(CarRentingDbContext data) 
             => this.data = data;
 
         public AllCarsApiServiceModel AllCars(
@@ -43,8 +44,6 @@
                 carsQuery = carsQuery.Where(c => c.CategoryId == categoryId);
             }
 
-
-
             carsQuery = carSorting switch
             {
                 CarSorting.Year => carsQuery.OrderByDescending(c => c.Year),
@@ -54,19 +53,10 @@
 
             var totalCars = carsQuery.Count();
 
-            var cars = carsQuery
+            var cars = this.GetCars(carsQuery
                 .Skip((currentPage - 1) * carsPerPage)
-                .Take(carsPerPage)
-                .Select(c => new CarServiceModel
-                {
-                    Make = c.Make,
-                    Model = c.Model,
-                    Year = c.Year,
-                    ImageUrl = c.ImageUrl,
-                    Category = c.Category.Name
-
-                }).ToList();
-
+                .Take(carsPerPage));
+                
             return new AllCarsApiServiceModel
             {
                 TotalCars = totalCars,
@@ -84,13 +74,35 @@
                         .OrderBy(br => br)
                         .ToList();
 
-        public IEnumerable<CarCategoryViewModel> GetCategories()
+        public IEnumerable<CarServiceModel> ByUser(string userId)
+            => this.GetCars(this.data
+                .Cars
+                .Where(c => c.Dealer.UserId == userId));
+
+        public bool CategoryExists(int categoryId)
+            => this.data
+                .Categories
+                .Any(c => c.Id == categoryId);
+
+        public IEnumerable<CarCategoryServiceModel> GetCategories()
                 => this.data
                     .Categories
-                    .Select(c => new CarCategoryViewModel
+                    .Select(c => new CarCategoryServiceModel
                     {
                         Id = c.Id,
                         Name = c.Name
                     }).ToList();
+
+        private IEnumerable<CarServiceModel> GetCars(IQueryable<Car> carsQuery)
+            => carsQuery
+            .Select(c => new CarServiceModel
+            {
+                Make = c.Make,
+                Model = c.Model,
+                ImageUrl = c.ImageUrl,
+                Year = c.Year,
+                Category = c.Category.Name
+
+            }).ToList();
     }
 }

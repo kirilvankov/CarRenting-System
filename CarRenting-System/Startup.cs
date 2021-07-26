@@ -3,7 +3,7 @@ namespace CarRenting_System
 
     using CarRenting_System.Data;
     using CarRenting_System.Data.Infrastucture;
-    using CarRenting_System.Services;
+    using CarRenting_System.Services.Dealers;
     using CarRenting_System.Services.Cars;
     using CarRenting_System.Services.Statistics;
 
@@ -46,7 +46,7 @@ namespace CarRenting_System
                 .AddControllersWithViews();
             services.AddTransient<IDealerService, DealerService>();
             services.AddTransient<IStatisticsService, StatisticsService>();
-            services.AddTransient<ICarsService, CarsService>();
+            services.AddTransient<ICarsService, CarService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

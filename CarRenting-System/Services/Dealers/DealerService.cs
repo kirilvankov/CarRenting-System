@@ -1,4 +1,4 @@
-﻿namespace CarRenting_System.Services
+﻿namespace CarRenting_System.Services.Dealers
 {
     using System.Linq;
     

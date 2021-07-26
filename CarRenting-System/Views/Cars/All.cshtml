@@ -87,7 +87,9 @@
     }
 </div>
 <div class="mb-5"></div>
-<div class="row">
+<partial name="_CarsListingPartial" model="@Model.Cars" />
+
+@*<div class="row">
     @foreach (var car in Model.Cars)
     {
         <div class="col-md-4">
@@ -100,4 +102,4 @@
             </div>
         </div>
     }
-</div>
+</div>*@

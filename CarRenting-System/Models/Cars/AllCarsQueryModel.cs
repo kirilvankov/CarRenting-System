@@ -29,6 +29,6 @@
 
         public IEnumerable<CarServiceModel> Cars { get; set; }
 
-        public IEnumerable<CarCategoryViewModel> Categories { get; set; }
+        public IEnumerable<CarCategoryServiceModel> Categories { get; set; }
     }
 }

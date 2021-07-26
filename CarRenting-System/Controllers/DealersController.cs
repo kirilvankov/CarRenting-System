@@ -5,7 +5,7 @@
     using CarRenting_System.Data.Infrastucture;
     using CarRenting_System.Data.Models;
     using CarRenting_System.Models.Dealers;
-    using CarRenting_System.Services;
+    using CarRenting_System.Services.Dealers;
 
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
