@@ -1,11 +1,5 @@
 ﻿@model CarFormModel
 
-@{
-    ViewData["Title"] = "Add Car";
-}
-
-
-
 <div class="col-sm-12 offset-md-2 col-md-8 offset-lg-2 col-lg-8 offset-xl-2 col-xl-9">
     <h2>Add Car</h2>
     <form method="post">
@@ -44,11 +38,6 @@
                 }
             </select>
         </div>
-        <input class="btn btn-primary" type="submit" value="Add" />
+        <input class="btn btn-primary mt-3" type="submit" value="Save" />
     </form>
 </div>
-
-@section Scripts{ 
-<partial name="_ValidationScriptsPartial" />
-}
-

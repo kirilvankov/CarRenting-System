@@ -6,7 +6,7 @@
     using CarRenting_System.Services.Cars;
 
     using static Data.DataConstants.Car;
-    public class AddCarFormModel
+    public class CarFormModel
     {
         [Required]
         [StringLength(MakeMaxLength, MinimumLength = MakeMinLength)]

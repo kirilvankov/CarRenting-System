@@ -1,24 +1,22 @@
 ﻿namespace CarRenting_System.Services.Cars
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
 
+    using System.Linq;
+    using System.Collections.Generic;
 
     using CarRenting_System.Data;
     using CarRenting_System.Data.Models;
     using CarRenting_System.Models;
-    using CarRenting_System.Models.Cars;
 
     public class CarService : ICarsService
     {
         private readonly CarRentingDbContext data;
 
-        public CarService(CarRentingDbContext data) 
+        public CarService(CarRentingDbContext data)
             => this.data = data;
 
         public AllCarsApiServiceModel AllCars(
-                                string make, 
+                                string make,
                                 string searchTerm,
                                 int categoryId,
                                 CarSorting carSorting,
@@ -56,7 +54,7 @@
             var cars = this.GetCars(carsQuery
                 .Skip((currentPage - 1) * carsPerPage)
                 .Take(carsPerPage));
-                
+
             return new AllCarsApiServiceModel
             {
                 TotalCars = totalCars,
@@ -79,10 +77,71 @@
                 .Cars
                 .Where(c => c.Dealer.UserId == userId));
 
+        public bool CarByDealer(int id, int dealerId) 
+            => this.data
+                .Cars
+                .Any(c => c.Id == id && c.DealerId == dealerId);
+
         public bool CategoryExists(int categoryId)
             => this.data
                 .Categories
                 .Any(c => c.Id == categoryId);
+
+        public void CreateCar(string make, string model, string description, int year, string imageUrl, int categoryId, int dealerId)
+        {
+            var carData = new Car
+            {
+                Make = make,
+                Model = model,
+                Year = year,
+                Description = description,
+                ImageUrl = imageUrl,
+                CategoryId = categoryId,
+                DealerId = dealerId
+            };
+
+            this.data.Cars.Add(carData);
+            this.data.SaveChanges();
+        }
+
+        public CarDetailServiceModel Details(int id)
+            => this.data
+            .Cars
+            .Where(c => c.Id == id)
+            .Select(c => new CarDetailServiceModel
+            {
+                Make = c.Make,
+                Model = c.Model,
+                Description = c.Description,
+                Year = c.Year,
+                ImageUrl = c.ImageUrl,
+                CategoryId = c.CategoryId,
+                CategoryName = c.Category.Name,
+                DealerId = c.DealerId,
+                UserId = c.Dealer.UserId
+            }).FirstOrDefault();
+
+
+        public bool EditCar(int id, string make, string model, string description, int year, string imageUrl, int categoryId)
+        {
+            var car = this.data.Cars.Find(id);
+
+            if (car == null)
+            {
+                return false;
+            }
+
+            car.Make = make;
+            car.Model = model;
+            car.Description = description;
+            car.Year = year;
+            car.ImageUrl = imageUrl;
+            car.CategoryId = categoryId;
+
+            this.data.SaveChanges();
+
+            return true;
+        }
 
         public IEnumerable<CarCategoryServiceModel> GetCategories()
                 => this.data
@@ -97,11 +156,12 @@
             => carsQuery
             .Select(c => new CarServiceModel
             {
+                Id = c.Id,
                 Make = c.Make,
                 Model = c.Model,
                 ImageUrl = c.ImageUrl,
                 Year = c.Year,
-                Category = c.Category.Name
+                CategoryName = c.Category.Name
 
             }).ToList();
     }
