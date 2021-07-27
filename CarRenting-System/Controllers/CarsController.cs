@@ -1,12 +1,8 @@
 ﻿namespace CarRenting_System.Controllers
 {
-    using System.Collections.Generic;
-    using System.Linq;
-    
+
     using CarRenting_System.Data;
     using CarRenting_System.Data.Infrastucture;
-    using CarRenting_System.Data.Models;
-    using CarRenting_System.Models;
     using CarRenting_System.Models.Cars;
     using CarRenting_System.Services.Dealers;
     using CarRenting_System.Services.Cars;
