@@ -4,6 +4,11 @@ namespace CarRenting_System.Data
 {
     public class DataConstants
     {
+        public class User
+        {
+            public const int FullNameMinLength = 2;
+            public const int FullNameMaxLength = 40;
+        }
         public class Dealer
         {
             public const int FullNameMinLength = 2;
